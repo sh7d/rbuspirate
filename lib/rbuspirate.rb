@@ -7,45 +7,75 @@ require 'rbuspirate/helpers'
 require 'rbuspirate/responses'
 require 'rbuspirate/timeouts'
 require 'rbuspirate/interfaces/i2c'
+require 'rbuspirate/interfaces/uart'
 
-Dir.glob(File.expand_path(__FILE__) + '**/*.rb') { |f| require_relative f }
 module Rbuspirate
   class Client
-    attr_reader :mode, :interface
+    attr_reader :mode, :interface, :needs_reset
 
     def initialize(serial)
       raise ArgumentError, 'Shitty arg' unless serial.class == SerialPort
 
       @le_port = serial
+      @needs_reset = false
       reset_binary_mode
     end
 
     def reset_binary_mode
+      raise 'Device needs reset to change mode' if @needs_reset
+
       20.times do
         @le_port.putc(Commands::RESET_BITBANG)
         resp = @le_port.expect(
           Responses::BITBANG_MODE, Timeouts::BINARY_RESET
         )
-        return true if resp
+
+        if resp
+          @interface = nil
+          @mode = :bitbang
+          return true
+        end
       end
+
       raise 'Enter to bitbang failied'
-      @mode = :bitbang
     end
 
     def enter_i2c
-      return true if @mode == :i2c
+      switch_mode(
+        :i2c, Commands::I2C::ENTER,
+        Timeouts::I2C::ENTER, Responses::I2C::ENTER,
+        Interfaces::I2C
+      )
+    end
 
-      @le_port.write(Commands::I2C::ENTER.chr)
+    def enter_uart
+      switch_mode(
+        :uart, Commands::UART::ENTER,
+        Timeouts::UART::ENTER, Responses::UART::ENTER,
+        Interfaces::UART
+      )
+    end
+
+    private
+
+    def switch_mode(
+      name_symbol,    switch_command,
+      wait_timeout,   enter_response,
+      interface_class
+    )
+      raise 'Device needs reset to change mode' if @needs_reset
+
+      @le_port.write(switch_command.chr)
       resp = @le_port.expect(
-        Responses::I2C::ENTER, Timeouts::I2C::ENTER
+        enter_response, wait_timeout
       )
       if resp
-        @mode = :i2c
-        @interface = Interfaces::I2C.new(@le_port, self)
+        @mode = name_symbol
+        @interface = interface_class.new(@le_port, self)
         return true
       end
 
-      raise 'Switch to I2C failied'
+      raise "Switch to #{name_symbol.to_s.upcase} failied"
     end
   end
 end

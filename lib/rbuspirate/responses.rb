@@ -9,5 +9,9 @@ module Rbuspirate
     module I2C
       ENTER = 'I2C1'
     end
+
+    module UART
+      ENTER = 'ART1'
+    end
   end
 end

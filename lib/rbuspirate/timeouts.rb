@@ -15,5 +15,9 @@ module Rbuspirate
       WRITE_THEN_READ_S = 5
       WRITE_THEN_READ_D = 5
     end
+
+    module UART
+      ENTER = 0.2
+    end
   end
 end
