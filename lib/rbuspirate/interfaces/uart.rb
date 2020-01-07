@@ -111,6 +111,7 @@ module Rbuspirate
         @le_port.write(Commands::UART::START_BRIDGE.chr)
         @bridge = true
         @bup.instance_variable_set(:@needs_reset, true)
+        @port = @le_port
       end
 
       def read(bytes = 0)
