@@ -1,14 +1,30 @@
 #!/usr/bin/env ruby
 
-require "bundler/setup"
-require "rbuspirate"
+require 'bundler/setup'
+require 'rbuspirate'
+require 'optparse'
+require 'pry'
 
-# You can add fixtures and/or initialization code here to make experimenting
-# with your gem easier. You can also use a different console, if you like.
+le_options = {}
 
-# (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
-# Pry.start
+optparse = OptParse.new do |opts|
+  opts.on(
+    '-d device', '--device device', String, 'Path to buspirate device'
+  ) do |device|
+    dev_stat = File.stat(device).rdev rescue nil
+    raise 'Connect buspirate first' unless dev_stat
+    raise 'Device argument must be device' if dev_stat.zero?
 
-require "pry"
-Pry.start
+    le_options[:device] = device
+  end
+end
+optparse.parse!
+le_options.freeze
+if le_options[:device]
+  bp = SerialPort.new(le_options[:device], 115_200, 8, 1, SerialPort::NONE)
+  rs = Rbuspirate::Client.new(bp)
+
+  binding.pry
+else
+  puts optparse.to_s
+end
