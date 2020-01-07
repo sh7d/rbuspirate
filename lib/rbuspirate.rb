@@ -13,10 +13,11 @@ module Rbuspirate
   class Client
     attr_reader :mode, :interface, :needs_reset
 
-    def initialize(serial)
+    def initialize(serial, sync: true)
       raise ArgumentError, 'Shitty arg' unless serial.class == SerialPort
 
       @le_port = serial
+      @le_port.sync = true if sync
       @needs_reset = false
       reset_binary_mode
     end
