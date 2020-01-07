@@ -42,6 +42,8 @@ module Rbuspirate
     end
 
     def enter_i2c
+      raise 'Device needs reset to change mode' if @needs_reset
+
       switch_mode(
         :i2c, Commands::I2C::ENTER,
         Timeouts::I2C::ENTER, Responses::I2C::ENTER,
@@ -50,6 +52,8 @@ module Rbuspirate
     end
 
     def enter_uart
+      raise 'Device needs reset to change mode' if @needs_reset
+
       switch_mode(
         :uart, Commands::UART::ENTER,
         Timeouts::UART::ENTER, Responses::UART::ENTER,
