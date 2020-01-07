@@ -1,5 +1,4 @@
 require 'expect'
-require 'optparse'
 require 'serialport'
 
 require 'rbuspirate/commands'
