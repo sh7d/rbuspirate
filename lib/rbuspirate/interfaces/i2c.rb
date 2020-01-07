@@ -7,6 +7,7 @@ module Rbuspirate
   module Interfaces
     class I2C
       include Helpers
+      attr_reader :speed, :power, :pullup, :aux, :cs
 
       def initialize(serial, bup)
         raise 'Bus pirate must be in i2c mode' unless bup.mode == :i2c
@@ -32,9 +33,10 @@ module Rbuspirate
           Timeouts::SUCCESS,
           'Unable to confgure peripherals'
         )
+       @power, @pullup, @aux, @cs = power, pullup, aux, cs
       end
 
-      def speed(le_speed)
+      def speed=(le_speed)
         bit_speed = case le_speed.to_sym
                     when :'5khz'
                       Commands::I2C::Config::Speed::S5KHZ

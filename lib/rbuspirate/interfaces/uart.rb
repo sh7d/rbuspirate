@@ -7,7 +7,9 @@ module Rbuspirate
   module Interfaces
     class UART
       include Helpers
-      attr_reader :bridge
+      attr_reader :bridge, :speed, :power, :pullup, :aux, :cs,
+                  :pin_out_33, :parity_data, :stop_bits, :rx_idle,
+                  :port
 
       def initialize(serial, bup)
         raise 'Bus pirate must be in uart mode' unless bup.mode == :uart
@@ -20,6 +22,8 @@ module Rbuspirate
       def configure_peripherals(
         power: false, pullup: false, aux: false, cs: false
       )
+        raise 'Device needs reset in order to reconfigure it' if @bridge
+
         [power, pullup, aux, cs].map(&:class).each do |cls|
           raise ArgumentError, 'All args must be true or false' unless [FalseClass, TrueClass].include?(cls)
         end
@@ -35,9 +39,12 @@ module Rbuspirate
           Timeouts::SUCCESS,
           'Unable to confgure peripherals'
         )
+        @power, @pullup, @aux, @cs = power, pullup, aux, cs
       end
 
-      def speed(le_speed)
+      def speed=(le_speed)
+        raise 'Device needs reset in order to reconfigure it' if @bridge
+
         bit_speed = case le_speed
                     when 300
                       Commands::UART::Config::Speed::S300
@@ -64,33 +71,38 @@ module Rbuspirate
                     end
 
         simplex_command(bit_speed, Timeouts::SUCCESS, 'Unable to set speed')
+        @speed = bit_speed
       end
 
       def config_uart(
         pin_out_33: false, parity_data: :n8, stop_bits: 1, rx_idle: true
       )
+        raise 'Device needs reset in order to reconfigure it' if @bridge
+
         raise ArgumentError, 'Pin out should be false or true' unless [true, false].include?(pin_out_33)
         raise ArgumentError, 'Unknown praity and databits mode' unless [:n8, :e8, :o8, :n9].include?(parity_data)
         raise ArgumentError, 'Unknown stop bits mode' unless [1, 2].include?(stop_bits)
         raise ArgumentError, 'Rx idle should be false or true' unless [true, false].include?(rx_idle)
 
-        bit_conf_uart = Commands::UART::CONF_UART
+        bit_conf_uart = Commands::UART::Config::CONF_UART
 
-        bit_conf_uart |= Commands::UART::UartConf::PIN_OUT_33 if pin_out_33
+        bit_conf_uart |= Commands::UART::Config::UartConf::PIN_OUT_33 if pin_out_33
         bit_conf_uart |= case parity_data
                          when :e8
-                           Commands::UART::UartConf::DAT_PARITY_8E
+                           Commands::UART::Config::UartConf::DAT_PARITY_8E
                          when :o8
-                           Commands::UART::UartConf::DAT_PARITY_8O
+                           Commands::UART::Config::UartConf::DAT_PARITY_8O
                          when :n9
-                           Commands::UART::UartConf::DAT_PARITY_9N
+                           Commands::UART::Config::UartConf::DAT_PARITY_9N
                          else
                            0
                          end
-        bit_conf_uart |= Commands::UART::UartConf::STOP_BIT_2 if stop_bits == 2
-        bit_conf_uart |= Commands::UART::UartConf::DISABLE_RX_IDLE unless rx_idle
+        bit_conf_uart |= Commands::UART::Config::UartConf::STOP_BIT_2 if stop_bits == 2
+        bit_conf_uart |= Commands::UART::Config::UartConf::DISABLE_RX_IDLE unless rx_idle
 
         simplex_command(bit_conf_uart, Timeouts::SUCCESS, 'Unable to config uart')
+
+        @pin_out_33, @parity_data, @stop_bits, @rx_idle = pin_out_33, parity_data, stop_bits, rx_idle
       end
 
       def enter_bridge
