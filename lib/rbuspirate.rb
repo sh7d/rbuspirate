@@ -12,10 +12,17 @@ module Rbuspirate
   class Client
     attr_reader :mode, :interface, :needs_reset
 
-    def initialize(serial, sync: true)
-      raise ArgumentError, 'Shitty arg' unless serial.class == SerialPort
+    def initialize(dvc, sync: true)
+      raise ArgumentError, 'Shitty arg' unless [SerialPort, String].include?(dvc)
 
-      @le_port = serial
+      if dvc.instance_of?(String)
+        dev_stat = File.stat(device).rdev rescue nil
+        raise 'Connect buspirate first' unless dev_stat
+        raise 'Device argument must be device' if dev_stat.zero?
+
+        dvc = SerialPort.new(dvc, 115_200, 8, 1, SerialPort::NONE)
+      end
+      @le_port = dvc
       @le_port.sync = true if sync
       @needs_reset = false
       reset_binary_mode
