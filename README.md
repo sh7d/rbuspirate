@@ -23,9 +23,9 @@ See examples/ dir
 
 ## Status
 
-I2C: Full support
-UART: Basic support (only bridge mode, no custom speed)
-Windows not supported, contributions are welcomed
+I2C: Full support  
+UART: Basic support (only bridge mode, no custom speed)  
+Windows not supported, contributions are welcomed  
 
 ## Development
 
