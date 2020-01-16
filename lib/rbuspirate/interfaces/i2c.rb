@@ -85,11 +85,11 @@ module Rbuspirate
         )
       end
 
-      def read(bytes = 1, auto_ack: true, auto_nack: true)
+      def read(bytes = 1, auto_ack: true, auto_nack: true, readbyte_timeout: Timeouts::I2C::READ)
         result = ''.dup.b
         bytes.times do |t|
           @le_port.write(Commands::I2C::READBYTE.chr)
-          Timeout.timeout(Timeouts::I2C::READ) do
+          Timeout.timeout(readbyte_timeout) do
             result << @le_port.read(1)
           end
           send_ack if auto_ack && t + 1 != bytes
@@ -98,7 +98,7 @@ module Rbuspirate
         result
       end
 
-      def bulk_write(data)
+      def bulk_write(data, ack_timeout: Timeouts::I2C::SLAVE_ACKNACK)
         raise ArgumentError, 'data must be String instance' unless data.instance_of?(String)
 
         if !data.instance_of?(String) || data.instance_of?(String) && data.empty?
@@ -115,7 +115,7 @@ module Rbuspirate
         ack_array = []
         data.each_byte do |data_byte|
           @le_port.write(data_byte.chr)
-          Timeout.timeout(Timeouts::I2C::SLAVE_ACKNACK) do
+          Timeout.timeout(ack_timeout) do
             ack_array << case @le_port.read(1).ord
                          when 0
                            :ack
