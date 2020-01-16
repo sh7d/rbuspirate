@@ -13,12 +13,11 @@ module Rbuspirate
     attr_reader :mode, :interface, :needs_reset
 
     def initialize(dvc, sync: true)
-      raise ArgumentError, 'Shitty arg' unless [SerialPort, String].include?(dvc)
+      raise ArgumentError, 'Shitty arg' unless [SerialPort, String].include?(dvc.class)
 
       if dvc.instance_of?(String)
-        dev_stat = File.stat(device).rdev rescue nil
-        raise 'Connect buspirate first' unless dev_stat
-        raise 'Device argument must be device' if dev_stat.zero?
+        raise 'Connect buspirate first' unless File.exist?(dvc)
+        raise 'Device argument must be device' if File.stat(dvc).rdev.zero?
 
         dvc = SerialPort.new(dvc, 115_200, 8, 1, SerialPort::NONE)
       end
