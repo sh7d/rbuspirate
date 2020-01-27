@@ -2,9 +2,9 @@ require 'expect'
 require 'serialport'
 
 require 'rbuspirate/commands'
-require 'rbuspirate/helpers'
 require 'rbuspirate/responses'
 require 'rbuspirate/timeouts'
+require 'rbuspirate/interfaces/abstract'
 require 'rbuspirate/interfaces/i2c'
 require 'rbuspirate/interfaces/uart'
 
@@ -20,6 +20,7 @@ module Rbuspirate
         raise 'Device argument must be device' if File.stat(dvc).rdev.zero?
 
         dvc = SerialPort.new(dvc, 115_200, 8, 1, SerialPort::NONE)
+        dvc.flow_control = SerialPort::NONE
       end
       @le_port = dvc
       @le_port.sync = true if sync

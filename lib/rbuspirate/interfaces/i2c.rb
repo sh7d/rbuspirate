@@ -5,35 +5,13 @@ require 'timeout'
 
 module Rbuspirate
   module Interfaces
-    class I2C
-      include Helpers
+    class I2C < Abstract
       attr_reader :speed, :power, :pullup, :aux, :cs
 
       def initialize(serial, bup)
         raise 'Bus pirate must be in i2c mode' unless bup.mode == :i2c
 
         @le_port = serial
-      end
-
-      def configure_peripherals(
-        power: false, pullup: false, aux: false, cs: false
-      )
-        [power, pullup, aux, cs].map(&:class).each do |cls|
-          raise ArgumentError, 'All args must be true or false' unless [FalseClass, TrueClass].include?(cls)
-        end
-
-        bit_config = Commands::I2C::Config::CONF_PER
-        bit_config |= Commands::I2C::Config::Peripherals::POWER if power
-        bit_config |= Commands::I2C::Config::Peripherals::PULLUP if pullup
-        bit_config |= Commands::I2C::Config::Peripherals::AUX if aux
-        bit_config |= Commands::I2C::Config::Peripherals::CS if cs
-
-        simplex_command(
-          bit_config,
-          Timeouts::SUCCESS,
-          'Unable to confgure peripherals'
-        )
-       @power, @pullup, @aux, @cs = power, pullup, aux, cs
       end
 
       def speed=(le_speed)

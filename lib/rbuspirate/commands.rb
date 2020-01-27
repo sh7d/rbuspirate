@@ -4,6 +4,16 @@
 module Rbuspirate
   module Commands
     RESET_BITBANG = 0b00000000
+    CONF_PER = 0b01000000
+
+    module Config
+      module Peripherals
+        POWER = 0b00001000
+        PULLUP = 0b00000100
+        AUX = 0b00000010
+        CS = 0b00000001
+      end
+    end
 
     module I2C
       ENTER = 0b00000010
@@ -12,15 +22,6 @@ module Rbuspirate
       WRITE_THEN_READ = 0x8
 
       module Config
-        CONF_PER = 0b01000000
-
-        module Peripherals
-          POWER = 0b00001000
-          PULLUP = 0b00000100
-          AUX = 0b00000010
-          CS = 0b00000001
-        end
-
         module Speed
           S5KHZ = 0b01100000
           S50KZ = 0b01100001
@@ -42,15 +43,7 @@ module Rbuspirate
       START_BRIDGE = 0b00001111
 
       module Config
-        CONF_PER = 0b01000000
         CONF_UART = 0b10000000
-
-        module Peripherals
-          POWER = 0b00001000
-          PULLUP = 0b00000100
-          AUX = 0b00000010
-          CS = 0b00000001
-        end
 
         module Speed
           S300 = 0b01100000

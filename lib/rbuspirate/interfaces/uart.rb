@@ -5,8 +5,7 @@ require 'timeout'
 
 module Rbuspirate
   module Interfaces
-    class UART
-      include Helpers
+    class UART < Abstract
       attr_reader :bridge, :speed, :power, :pullup, :aux, :cs,
                   :pin_out_33, :parity_data, :stop_bits, :rx_idle,
                   :port
@@ -19,27 +18,10 @@ module Rbuspirate
         @le_port = serial
       end
 
-      def configure_peripherals(
-        power: false, pullup: false, aux: false, cs: false
-      )
+      def configure_peripherals(...)
         raise 'Device needs reset in order to reconfigure it' if @bridge
 
-        [power, pullup, aux, cs].map(&:class).each do |cls|
-          raise ArgumentError, 'All args must be true or false' unless [FalseClass, TrueClass].include?(cls)
-        end
-
-        bit_config = Commands::UART::Config::CONF_PER
-        bit_config |= Commands::UART::Config::Peripherals::POWER if power
-        bit_config |= Commands::UART::Config::Peripherals::PULLUP if pullup
-        bit_config |= Commands::UART::Config::Peripherals::AUX if aux
-        bit_config |= Commands::UART::Config::Peripherals::CS if cs
-
-        simplex_command(
-          bit_config,
-          Timeouts::SUCCESS,
-          'Unable to confgure peripherals'
-        )
-        @power, @pullup, @aux, @cs = power, pullup, aux, cs
+        super
       end
 
       def speed=(le_speed)
