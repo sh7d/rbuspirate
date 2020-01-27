@@ -24,7 +24,7 @@ module Rbuspirate
       module Config
         module Speed
           S5KHZ = 0b01100000
-          S50KZ = 0b01100001
+          S50KHZ = 0b01100001
           S100KHZ = 0b01100010
           S400KHZ = 0b01100011
         end
