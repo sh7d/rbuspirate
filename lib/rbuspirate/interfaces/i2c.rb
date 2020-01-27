@@ -12,23 +12,11 @@ module Rbuspirate
         raise 'Bus pirate must be in i2c mode' unless bup.mode == :i2c
 
         @le_port = serial
+        set_speed(:'400khz')
       end
 
       def speed=(le_speed)
-        bit_speed = case le_speed.to_sym
-                    when :'5khz'
-                      Commands::I2C::Config::Speed::S5KHZ
-                    when :'50khz'
-                      Commands::I2C::Config::Speed::S50KHZ
-                    when :'100khz'
-                      Commands::I2C::Config::Speed::S100KHZ
-                    when :'400khz'
-                      Commands::I2C::Config::Speed::S400KHZ
-                    else
-                      raise ArgumentError, 'Bad speed argument'
-                    end
-
-        simplex_command(bit_speed, Timeouts::SUCCESS, 'Unable to set speed')
+        set_speed(le_speed)
       end
 
       def send_start
@@ -133,7 +121,6 @@ module Rbuspirate
         end
         return false if allow_zerobyte && result.ord.zero?
         raise 'Write failed' if result.ord.zero?
-
         if expected_bytes != 0
           Timeout.timeout(Timeouts::I2C::WRITE_THEN_READ_D) do
             result = @le_port.read(expected_bytes)
@@ -142,6 +129,24 @@ module Rbuspirate
         else
           true
         end
+      end
+      private
+      def set_speed(le_speed)
+        bit_speed = case le_speed.to_sym
+                    when :'5khz'
+                      Commands::I2C::Config::Speed::S5KHZ
+                    when :'50khz'
+                      Commands::I2C::Config::Speed::S50KHZ
+                    when :'100khz'
+                      Commands::I2C::Config::Speed::S100KHZ
+                    when :'400khz'
+                      Commands::I2C::Config::Speed::S400KHZ
+                    else
+                      raise ArgumentError, 'Bad speed argument'
+                    end
+
+        simplex_command(bit_speed, Timeouts::SUCCESS, 'Unable to set speed')
+        @speed = le_speed
       end
     end
   end
