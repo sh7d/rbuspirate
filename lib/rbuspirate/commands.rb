@@ -15,6 +15,16 @@ module Rbuspirate
       end
     end
 
+    module LE1WIRE
+      ENTER = 0b00000100
+      RESET = 0b00000010
+
+      module IO
+        READ = 0b00000100
+        WRITE = 0b00010000
+      end
+    end
+
     module I2C
       ENTER = 0b00000010
       PREPARE_WRITE = 0b00010000
