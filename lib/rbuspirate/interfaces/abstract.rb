@@ -1,3 +1,6 @@
+# Encoding: binary
+# frozen_string_literal: true
+
 module Rbuspirate
   module Interfaces
     class Abstract
@@ -25,6 +28,7 @@ module Rbuspirate
       protected
 
       def simplex_command(command, tout, ex_message)
+        command = command.chr if command.instance_of?(Integer)
         @le_port.write(command.chr)
         resp = @le_port.expect(Responses::SUCCESS, tout)
         return true if resp

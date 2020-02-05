@@ -5,6 +5,14 @@ module Rbuspirate
   module Timeouts
     BINARY_RESET = 0.05
     SUCCESS = 0.1
+
+    module LE1WIRE
+      ENTER = 0.2
+      RESET = 0.5
+      WRITE = 1
+      READ = 1
+    end
+
     module I2C
       ENTER = 0.2
       STARTSTOP = 0.5

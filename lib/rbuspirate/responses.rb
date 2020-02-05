@@ -6,6 +6,10 @@ module Rbuspirate
     BITBANG_MODE = 'BBIO1'
     SUCCESS = 0x01.chr
 
+    module LE1WIRE
+      ENTER = '1W01'
+    end
+
     module I2C
       ENTER = 'I2C1'
     end

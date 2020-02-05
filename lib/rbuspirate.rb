@@ -7,6 +7,7 @@ require 'rbuspirate/timeouts'
 require 'rbuspirate/interfaces/abstract'
 require 'rbuspirate/interfaces/i2c'
 require 'rbuspirate/interfaces/uart'
+require 'rbuspirate/interfaces/1wire'
 
 module Rbuspirate
   class Client
@@ -64,6 +65,16 @@ module Rbuspirate
         :uart, Commands::UART::ENTER,
         Timeouts::UART::ENTER, Responses::UART::ENTER,
         Interfaces::UART
+      )
+    end
+
+    def enter_1wire
+      raise 'Device needs reset to change mode' if @needs_reset
+
+      switch_mode(
+        :'1wire', Commands::LE1WIRE::ENTER,
+        Timeouts::LE1WIRE::ENTER, Responses::LE1WIRE::ENTER,
+        Interfaces::LE1WIRE
       )
     end
 
