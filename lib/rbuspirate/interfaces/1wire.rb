@@ -27,7 +27,6 @@ module Rbuspirate
           simplex_command(
             command, write_slice_timeout, 'Prepare slice write timeout'
           )
-          @le_port.expect(Responses::SUCCESS, Timeouts::SUCCESS)
           @le_port.write(slice)
           res = @le_port.expect(Responses::SUCCESS, write_slice_timeout)
           raise 'Write timeout' unless res
