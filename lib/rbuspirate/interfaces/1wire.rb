@@ -18,10 +18,15 @@ module Rbuspirate
       end
 
       def write(data, write_slice_timeout: Timeouts::LE1WIRE::WRITE)
+        !(data.is_a?(String) && !data.empty?) &&
+          raise(ArgumentError, 'data must be non empty String instance')
+
         data = StringIO.new(data)
         while (slice = data.read(16))
           command = Commands::LE1WIRE::IO::WRITE | slice.bytesize - 1
-          @le_port.write(command.chr)
+          simplex_command(
+            command, write_slice_timeout, 'Prepare slice write timeout'
+          )
           @le_port.expect(Responses::SUCCESS, Timeouts::SUCCESS)
           @le_port.write(slice)
           res = @le_port.expect(Responses::SUCCESS, write_slice_timeout)
