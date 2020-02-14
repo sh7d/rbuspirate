@@ -11,6 +11,20 @@ require 'rbuspirate/interfaces/1wire'
 
 module Rbuspirate
   class Client
+    def self.register_mode(
+      name_symbol,    switch_command,
+      wait_timeout,   enter_response,
+      interface_class
+    )
+      define_method("enter_#{name_symbol}".to_sym) do
+        switch_mode(
+          name_symbol,    switch_command,
+          wait_timeout,   enter_response,
+          interface_class
+        )
+      end
+    end
+
     attr_reader :mode, :interface, :needs_reset
     alias iface interface
 
@@ -48,35 +62,24 @@ module Rbuspirate
 
       raise 'Enter to bitbang failied'
     end
-
-    def enter_i2c
-      raise 'Device needs reset to change mode' if @needs_reset
-
-      switch_mode(
+    [
+      [
         :i2c, Commands::I2C::ENTER,
         Timeouts::I2C::ENTER, Responses::I2C::ENTER,
         Interfaces::I2C
-      )
-    end
-
-    def enter_uart
-      raise 'Device needs reset to change mode' if @needs_reset
-
-      switch_mode(
+      ],
+      [
         :uart, Commands::UART::ENTER,
         Timeouts::UART::ENTER, Responses::UART::ENTER,
         Interfaces::UART
-      )
-    end
-
-    def enter_1wire
-      raise 'Device needs reset to change mode' if @needs_reset
-
-      switch_mode(
+      ],
+      [
         :'1wire', Commands::LE1WIRE::ENTER,
         Timeouts::LE1WIRE::ENTER, Responses::LE1WIRE::ENTER,
         Interfaces::LE1WIRE
-      )
+      ]
+    ].each do |mode|
+      register_mode(*mode)
     end
 
     private
