@@ -90,7 +90,7 @@ module Rbuspirate
       interface_class
     )
       raise 'Device needs reset to change mode' if @needs_reset
-
+      reset_binary_mode
       @le_port.write(switch_command.chr)
       resp = @le_port.expect(
         enter_response, wait_timeout
