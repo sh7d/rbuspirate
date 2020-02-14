@@ -12,6 +12,7 @@ require 'rbuspirate/interfaces/1wire'
 module Rbuspirate
   class Client
     attr_reader :mode, :interface, :needs_reset
+    alias iface interface
 
     def initialize(dvc, sync: true)
       raise ArgumentError, 'Shitty arg' unless [SerialPort, String].include?(dvc.class)
