@@ -7,6 +7,8 @@ module Rbuspirate
     CONF_PER = 0b01000000
 
     module Config
+      PINONOFF = 0b10000000
+
       module Peripherals
         POWER = 0b00001000
         PULLUP = 0b00000100

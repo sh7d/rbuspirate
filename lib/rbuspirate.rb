@@ -62,6 +62,30 @@ module Rbuspirate
 
       raise 'Enter to bitbang failied'
     end
+
+    def pin_on_off(power: false, pullup: false, aux: false, mosi: false, clk: false, miso: false, cs: false)
+      argarray = [power, pullup, aux, mosi, clk, miso, cs].freeze
+      argarray.each do |arg|
+        raise ArgumentError, 'Shitty arg' unless [true, false].include?(arg)
+      end
+
+      final_comm = argarray
+                   .each.with_index
+                   .inject(Commands::Config::PINONOFF) do |comm, (arg, idx)|
+                     arg ? (comm | 1 << idx) : (comm)
+                   end
+      @le_port.putc(final_comm)
+      # I don't fucking understand:
+      # "The Bus pirate responds to each update
+      #  with a byte in the same format
+      # that shows the current state of the pins"
+      # So, why response is always a null byte ?
+      resp = @le_port.expect(
+        Responses::PINS_SET, Timeouts::PINONOFF
+      )
+      raise 'Setting pins state failied' unless resp
+    end
+
     [
       [
         :i2c, Commands::I2C::ENTER,

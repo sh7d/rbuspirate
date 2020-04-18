@@ -5,6 +5,7 @@ module Rbuspirate
   module Responses
     BITBANG_MODE = 'BBIO1'
     SUCCESS = 0x01.chr
+    PINS_SET = 0x00.chr
 
     module LE1WIRE
       ENTER = '1W01'

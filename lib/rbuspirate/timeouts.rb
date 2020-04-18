@@ -5,6 +5,7 @@ module Rbuspirate
   module Timeouts
     BINARY_RESET = 0.05
     SUCCESS = 0.1
+    PINONOFF = 0.1
 
     module LE1WIRE
       ENTER = 0.2
