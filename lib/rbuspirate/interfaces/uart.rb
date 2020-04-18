@@ -90,7 +90,7 @@ module Rbuspirate
       def enter_bridge
         return @bridge if @bridge
 
-        @le_port.write(Commands::UART::START_BRIDGE.chr)
+        simplex_command(Commands::UART::START_BRIDGE, Timeouts::SUCCESS, 'Unable to enter bridge')
         @bridge = true
         @bup.instance_variable_set(:@needs_reset, true)
         @port = @le_port
