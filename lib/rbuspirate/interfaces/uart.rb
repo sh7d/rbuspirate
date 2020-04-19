@@ -102,8 +102,24 @@ module Rbuspirate
       end
 
       def write(data)
-        raise 'Enter to bridge mode first' unless @bridge
-        @le_port.write(data.to_s.b)
+        data = data.to_s.b
+        @bridge ? @le_port.write(data) : bulk_write(data)
+      end
+
+      protected
+
+      def bulk_write(data)
+        raise ArgumentError, 'Shitty arg' unless data.instance_of?(String)
+        dbt = data.bytesize
+        unpackstr = 'a16' * (dbt / 16)
+        !(dbt % 16).zero? && unpackstr += "a#{dbt % 16}"
+        data = data.unpack(unpackstr)
+        data.each do |slice|
+          comm = Commands::UART::BULK_WRITE | (slice.bytesize - 1)
+          simplex_command(comm, Timeouts::SUCCESS, 'Unable to write data slice prepare')
+          simplex_command(slice, Timeouts::SUCCESS, 'Unable to write data slice')
+        end
+        dbt
       end
     end
   end

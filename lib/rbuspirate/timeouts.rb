@@ -27,6 +27,7 @@ module Rbuspirate
 
     module UART
       ENTER = 0.2
+      BULK_WRITE = 5
     end
   end
 end
