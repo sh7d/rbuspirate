@@ -53,6 +53,7 @@ module Rbuspirate
     module UART
       ENTER = 0b00000011
       START_BRIDGE = 0b00001111
+      ECHO_RX = 0b00000010
       BULK_WRITE = 0b00010000
 
       module Config

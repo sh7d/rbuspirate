@@ -8,7 +8,7 @@ module Rbuspirate
     class UART < Abstract
       attr_reader :bridge, :speed, :power, :pullup, :aux, :cs,
                   :pin_out_33, :parity_data, :stop_bits, :rx_idle,
-                  :port
+                  :port, :speed, :echo_rx
 
       def initialize(serial, bup)
         raise 'Bus pirate must be in uart mode' unless bup.mode == :uart
@@ -16,6 +16,7 @@ module Rbuspirate
         @bridge = false
         @bup = bup
         @le_port = serial
+        @echo_rx = false
       end
 
       def configure_peripherals(...)
@@ -54,6 +55,16 @@ module Rbuspirate
 
         simplex_command(bit_speed, Timeouts::SUCCESS, 'Unable to set speed')
         @speed = bit_speed
+      end
+
+      # Not working ?
+      def echo_rx=(echo_state)
+        raise ArgumentError, 'Echo state arg should be false or true' unless [true, false].include?(echo_state)
+        return if echo_state == @echo_rx
+
+        echo_comm = (Commands::UART::ECHO_RX | (echo_state ? 0 : 1))
+        simplex_command(echo_comm, Timeouts::SUCCESS, "Unable to set echo rx state to #{echo_state}")
+        @echo_rx = echo_state
       end
 
       def config_uart(
@@ -97,7 +108,8 @@ module Rbuspirate
       end
 
       def read(bytes = 0)
-        raise 'Enter to bridge mode first' unless @bridge
+        raise 'Enable echo_rx or enter to bridge mode' unless @bridge || @echo_rx
+        # Not working in echo rx mode - firmware bug or expect discards data buffer
         bytes.positive? ? @le_port.read(bytes) : @le_port.read
       end
 
