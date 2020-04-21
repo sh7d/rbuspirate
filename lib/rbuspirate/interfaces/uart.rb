@@ -121,7 +121,6 @@ module Rbuspirate
       protected
 
       def bulk_write(data)
-        raise ArgumentError, 'Shitty arg' unless data.instance_of?(String)
         dbt = data.bytesize
         unpackstr = 'a16' * (dbt / 16)
         !(dbt % 16).zero? && unpackstr += "a#{dbt % 16}"
